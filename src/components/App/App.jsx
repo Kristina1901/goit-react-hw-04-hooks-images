@@ -27,43 +27,6 @@ export default function App() {
   const switchModal = () => {
     setIsModalOpen(!isModalOpen);
   };
-  // const fetchData = (text, num) => {
-  //   fetch(
-  //     `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
-  //   )
-  //     .then(response => {
-  //       if (response.ok) {
-  //         let data = response.json();
-  //         return data;
-  //       }
-  //       return Promise.reject(
-  //         new Error(
-  //           `Sorry, there are no images matching your search query ${text}. Please try again.`
-  //         )
-  //       );
-  //     })
-  //     .then(data => {
-  //       const { hits, total } = data;
-
-  //       setImage([...image, ...hits]);
-  //       setStatus('resolved');
-  //       setValue('true');
-
-  //       if (total === 0) {
-  //         setValue(true);
-  //         toast.warning(
-  //           `Sorry, there are no images matching your search query. Please try again.`
-  //         );
-  //       }
-  //       if (total < 12) {
-  //         setValue(false);
-  //       }
-  //       if (Math.ceil(total / 12) === page) {
-  //         setValue(false);
-  //       }
-  //     })
-  //     .catch(error => setError(error) && setStatus('rejected'));
-  // };
   useEffect(() => {
     if (imageName === '') {
       return;
