@@ -9,7 +9,7 @@ import Container from 'components/Container/Container';
 import Section from 'components/Section/Section';
 import Modal from 'components/Modal/Modal';
 import Loader from 'components/Loader/Loader';
-// import { animateScroll as scroll } from 'react-scroll';
+import { animateScroll as scroll } from 'react-scroll';
 export default function App() {
   const [imageName, setImageName] = useState('');
   const [image, setImage] = useState([]);
@@ -69,7 +69,11 @@ export default function App() {
         if (Math.ceil(total / 12) === page) {
           setValue(false);
         }
+        if (page !== 1) {
+          scroll.scrollToBottom();
+        }
       })
+
       .catch(error => setError(error) && setStatus('rejected'));
   }, [imageName, page]);
 
