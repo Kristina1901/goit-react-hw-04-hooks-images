@@ -27,33 +27,31 @@ export default function App() {
   const switchModal = () => {
     setIsModalOpen(!isModalOpen);
   };
-
+  const fetchData = async (text, num) => {
+    setStatus('pending');
+    const response = await fetch(
+      `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
+    );
+    if (response.ok) {
+      let data = response.json();
+      return await data;
+    } else {
+      return Promise.reject(
+        new Error(
+          `Sorry, there are no images matching your search query ${text}. Please try again.`
+        )
+      );
+    }
+  };
   useEffect(() => {
     if (imageName === '') {
       return;
-    } else {
-      fetchData(imageName, page);
     }
-  }, [imageName, page]);
-  const fetchData = (text, num) => {
-    fetch(
-      `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
-    )
-      .then(response => {
-        if (response.ok) {
-          let data = response.json();
-          return data;
-        }
-        return Promise.reject(
-          new Error(
-            `Sorry, there are no images matching your search query ${text}. Please try again.`
-          )
-        );
-      })
+    fetchData(imageName, page)
       .then(data => {
         const { hits, total } = data;
 
-        setImage([...image, ...hits]);
+        setImage(image => [...image, ...hits]);
         setStatus('resolved');
         setValue('true');
 
@@ -71,7 +69,8 @@ export default function App() {
         }
       })
       .catch(error => setError(error) && setStatus('rejected'));
-  };
+  }, [imageName, page]);
+
   const onGalleryListClick = event => {
     if (event.target.nodeName === 'IMG') {
       const index = image.findIndex(el => el.webformatURL === event.target.src);
