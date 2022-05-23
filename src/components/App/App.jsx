@@ -23,6 +23,7 @@ export default function App() {
   const handleSearchFormSubmit = imageName => {
     setImageName(imageName);
     setImage([]);
+    setPage(1);
   };
   const switchModal = () => {
     setIsModalOpen(!isModalOpen);
