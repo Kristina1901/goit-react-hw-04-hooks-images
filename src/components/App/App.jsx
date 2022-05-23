@@ -48,10 +48,9 @@ export default function App() {
       })
       .then(data => {
         const { hits, total } = data;
-        setImage([...image, ...hits]);
+        setImage([...hits]);
         setStatus('resolved');
         setValue('true');
-
         if (total === 0) {
           setValue(true);
           toast.warning(
@@ -96,23 +95,6 @@ export default function App() {
   const handleIncrement = () => {
     setPage(page + 1);
   };
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (prevState.imageName !== this.state.imageName) {
-  //     this.setState({
-  //       image: [],
-  //       status: 'pending',
-  //       value: false,
-  //       page: 1,
-  //     });
-  //     this.fetchData(this.state.imageName, 1);
-  //   }
-  //   if (prevState.page !== this.state.page) {
-  //     this.setState({ value: false });
-  //     this.fetchData(this.state.imageName, this.state.page);
-  //     scroll.scrollToBottom();
-  //   }
-  // }
-
   return (
     <div>
       <Container>
@@ -122,6 +104,7 @@ export default function App() {
         {status === 'pending' && <Loader />}
         <ImageGallery image={image} onClick={onGalleryListClick} />
         {value && <Button handleIncrement={handleIncrement} />}
+        {status === 'rejected' && { error }}
       </Section>
       {isModalOpen && (
         <Modal
