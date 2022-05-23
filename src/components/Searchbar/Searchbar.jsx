@@ -16,7 +16,6 @@ export default function Searchbar({ onSubmit }) {
     }
 
     onSubmit(imageName);
-    setImageName('');
   };
 
   return (
