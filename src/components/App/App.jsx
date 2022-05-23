@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from '../Searchbar/Searchbar';
@@ -10,29 +10,67 @@ import Section from 'components/Section/Section';
 import Modal from 'components/Modal/Modal';
 import Loader from 'components/Loader/Loader';
 import { animateScroll as scroll } from 'react-scroll';
-export default class App extends Component {
-  state = {
-    imageName: '',
-    image: [],
-    error: null,
-    status: 'idle',
-    page: 1,
-    total: null,
-    value: false,
-    isModalOpen: false,
-    modalImageIndex: null,
+export default function App() {
+  const [imageName, setImageName] = useState('');
+  const [image, setImage] = useState([]);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState('idle');
+  const [page, setPage] = useState(1);
+  const [value, setValue] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImageIndex, setModalImageIndex] = useState(null);
+
+  const handleSearchFormSubmit = imageName => {
+    setImageName(imageName);
+    setImage([]);
   };
-  handleSearchFormSubmit = imageName => {
-    this.setState({ imageName });
+  const switchModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
-  switchModal = () => {
-    this.setState({
-      isModalOpen: !this.state.isModalOpen,
-    });
-  };
-  fetchData = (text, num) => {
+  // const fetchData = (text, num) => {
+  //   fetch(
+  //     `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
+  //   )
+  //     .then(response => {
+  //       if (response.ok) {
+  //         let data = response.json();
+  //         return data;
+  //       }
+  //       return Promise.reject(
+  //         new Error(
+  //           `Sorry, there are no images matching your search query ${text}. Please try again.`
+  //         )
+  //       );
+  //     })
+  //     .then(data => {
+  //       const { hits, total } = data;
+
+  //       setImage([...image, ...hits]);
+  //       setStatus('resolved');
+  //       setValue('true');
+
+  //       if (total === 0) {
+  //         setValue(true);
+  //         toast.warning(
+  //           `Sorry, there are no images matching your search query. Please try again.`
+  //         );
+  //       }
+  //       if (total < 12) {
+  //         setValue(false);
+  //       }
+  //       if (Math.ceil(total / 12) === page) {
+  //         setValue(false);
+  //       }
+  //     })
+  //     .catch(error => setError(error) && setStatus('rejected'));
+  // };
+  useEffect(() => {
+    if (imageName === '') {
+      return;
+    }
+    setStatus('pending');
     fetch(
-      `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
+      `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${imageName}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${page}`
     )
       .then(response => {
         if (response.ok) {
@@ -41,124 +79,97 @@ export default class App extends Component {
         }
         return Promise.reject(
           new Error(
-            `Sorry, there are no images matching your search query ${text}. Please try again.`
+            `Sorry, there are no images matching your search query ${imageName}. Please try again.`
           )
         );
       })
       .then(data => {
-        const { image, page } = this.state;
         const { hits, total } = data;
-
-        this.setState({
-          image: [...image, ...hits],
-          status: 'resolved',
-          total: total,
-          value: true,
-        });
+        setImage([...image, ...hits]);
+        setStatus('resolved');
+        setValue('true');
 
         if (total === 0) {
-          this.setState({ value: false });
+          setValue(true);
           toast.warning(
             `Sorry, there are no images matching your search query. Please try again.`
           );
         }
         if (total < 12) {
-          this.setState({ value: false });
+          setValue(false);
         }
         if (Math.ceil(total / 12) === page) {
-          this.setState({
-            value: false,
-          });
+          setValue(false);
         }
       })
-      .catch(error => this.setState({ error, status: 'rejected' }));
-  };
-  onGalleryListClick = event => {
+      .catch(error => setError(error) && setStatus('rejected'));
+  }, [imageName, page]);
+  const onGalleryListClick = event => {
     if (event.target.nodeName === 'IMG') {
-      const index = this.state.image.findIndex(
-        el => el.webformatURL === event.target.src
-      );
-
-      this.setState({
-        modalImageIndex: index,
-      });
+      const index = image.findIndex(el => el.webformatURL === event.target.src);
+      setModalImageIndex(index);
     }
 
-    this.switchModal();
+    switchModal();
   };
-  showNextImage = () => {
-    let nextIndex = this.state.modalImageIndex + 1;
+  const showNextImage = () => {
+    let nextIndex = modalImageIndex + 1;
 
-    if (nextIndex >= this.state.image.length) {
+    if (nextIndex >= image.length) {
       nextIndex = 0;
     }
 
-    this.setState({
-      modalImageIndex: nextIndex,
-    });
+    setModalImageIndex(nextIndex);
   };
 
-  showPrevImage = () => {
-    let prevIndex = this.state.modalImageIndex - 1;
+  const showPrevImage = () => {
+    let prevIndex = modalImageIndex - 1;
 
     if (prevIndex < 0) {
-      prevIndex = this.state.image.length - 1;
+      prevIndex = image.length - 1;
     }
-
-    this.setState({
-      modalImageIndex: prevIndex,
-    });
+    setModalImageIndex(prevIndex);
   };
-  handleIncrement = () => {
-    this.setState({ page: this.state.page + 1 });
+  const handleIncrement = () => {
+    setPage(page + 1);
   };
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.imageName !== this.state.imageName) {
-      this.setState({
-        image: [],
-        status: 'pending',
-        value: false,
-        page: 1,
-      });
-      this.fetchData(this.state.imageName, 1);
-    }
-    if (prevState.page !== this.state.page) {
-      this.setState({ value: false });
-      this.fetchData(this.state.imageName, this.state.page);
-      scroll.scrollToBottom();
-    }
-  }
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (prevState.imageName !== this.state.imageName) {
+  //     this.setState({
+  //       image: [],
+  //       status: 'pending',
+  //       value: false,
+  //       page: 1,
+  //     });
+  //     this.fetchData(this.state.imageName, 1);
+  //   }
+  //   if (prevState.page !== this.state.page) {
+  //     this.setState({ value: false });
+  //     this.fetchData(this.state.imageName, this.state.page);
+  //     scroll.scrollToBottom();
+  //   }
+  // }
 
-  render() {
-    const { image, error, status, value, isModalOpen, modalImageIndex } =
-      this.state;
-    const { onGalleryListClick, switchModal, showNextImage, showPrevImage } =
-      this;
-    if (status === 'rejected') {
-      return error.message;
-    } else {
-      return (
-        <div>
-          <Container>
-            <Searchbar onSubmit={this.handleSearchFormSubmit} />
-          </Container>
-          <Section nameForClass={'sectionList'}>
-            {status === 'pending' && <Loader />}
-            <ImageGallery image={image} onClick={onGalleryListClick} />
-            {value && <Button handleIncrement={this.handleIncrement} />}
-          </Section>
-          {isModalOpen && (
-            <Modal
-              image={image}
-              photoIndex={modalImageIndex}
-              onClose={switchModal}
-              nextImage={showNextImage}
-              prevImage={showPrevImage}
-            />
-          )}
-          <ToastContainer />
-        </div>
-      );
-    }
-  }
+  return (
+    <div>
+      <Container>
+        <Searchbar onSubmit={handleSearchFormSubmit} />
+      </Container>
+      <Section nameForClass={'sectionList'}>
+        {status === 'pending' && <Loader />}
+        <ImageGallery image={image} onClick={onGalleryListClick} />
+        {value && <Button handleIncrement={handleIncrement} />}
+      </Section>
+      {isModalOpen && (
+        <Modal
+          image={image}
+          photoIndex={modalImageIndex}
+          onClose={switchModal}
+          nextImage={showNextImage}
+          prevImage={showPrevImage}
+        />
+      )}
+      <ToastContainer />
+    </div>
+  );
 }
