@@ -27,13 +27,17 @@ export default function App() {
   const switchModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+
   useEffect(() => {
     if (imageName === '') {
       return;
+    } else {
+      fetchData(imageName, page);
     }
-    setStatus('pending');
+  }, [imageName, page]);
+  const fetchData = (text, num) => {
     fetch(
-      `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${imageName}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${page}`
+      `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
     )
       .then(response => {
         if (response.ok) {
@@ -42,15 +46,17 @@ export default function App() {
         }
         return Promise.reject(
           new Error(
-            `Sorry, there are no images matching your search query ${imageName}. Please try again.`
+            `Sorry, there are no images matching your search query ${text}. Please try again.`
           )
         );
       })
       .then(data => {
         const { hits, total } = data;
-        setImage([...hits]);
+
+        setImage([...image, ...hits]);
         setStatus('resolved');
         setValue('true');
+
         if (total === 0) {
           setValue(true);
           toast.warning(
@@ -65,7 +71,7 @@ export default function App() {
         }
       })
       .catch(error => setError(error) && setStatus('rejected'));
-  }, [imageName, page]);
+  };
   const onGalleryListClick = event => {
     if (event.target.nodeName === 'IMG') {
       const index = image.findIndex(el => el.webformatURL === event.target.src);
