@@ -29,6 +29,7 @@ export default function App() {
   };
   const fetchData = async (text, num) => {
     setStatus('pending');
+    setValue(false);
     const response = await fetch(
       `https://pixabay.com/api/?key=25742828-fa226770f9336c5f983da529f&q=${text}&image_type=photo&orientation=horizontal&safesearch&per_page=12&page=${num}`
     );
