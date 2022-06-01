@@ -63,10 +63,7 @@ export default function App() {
             `Sorry, there are no images matching your search query. Please try again.`
           );
         }
-        if (total < 12) {
-          setValue(false);
-        }
-        if (Math.ceil(total / 12) === page) {
+        if (Math.ceil(total / 12) === page || total < 12) {
           setValue(false);
         }
         if (page !== 1) {
